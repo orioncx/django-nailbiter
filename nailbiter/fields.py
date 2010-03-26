@@ -174,3 +174,14 @@ class ImageWithThumbsField(ImageField):
         self.filters = filters
         
         super(ImageField, self).__init__(**kwargs)
+
+    def south_field_triple(self):
+        """
+        Return a suitable description of this field for South.
+        """
+        # We'll just introspect ourselves, since we inherit.
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.files.ImageField"
+        args, kwargs = introspector(self)
+        # That's our definition!
+        return (field_class, args, kwargs)
