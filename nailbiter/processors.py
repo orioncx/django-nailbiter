@@ -86,3 +86,13 @@ def filters(im, requested_size, opts):
         im = im.filter(ImageFilter.SHARPEN)
     return im
 filters.valid_options = ('detail', 'sharpen')
+
+def letterbox(im, requested_size, opts):
+    if 'letterbox' in opts:
+        im.thumbnail(requested_size, Image.NEAREST)
+        bg = Image.new('RGBA', requested_size, (0, 0, 0, 0))
+        bg.paste(im,
+            ((requested_size[0] - im.size[0]) / 2, (requested_size[1] - im.size[1]) / 2))
+        im = bg
+    return im
+letterbox.valid_options = ('letterbox',)
