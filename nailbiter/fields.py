@@ -115,15 +115,8 @@ class ImageWithThumbsFieldFile(ImageFieldFile):
         return thumbnail_full_path
         
     def _generate_thumbnail_url(self, thumb_name, size):
-        from urlparse import urlparse
-        
-        _url = self.url
-        _name = self.name
-        urlbits = urlparse(self.url)
         filename = self.generate_thumbnail_name(self.name, thumb_name, size)
-        thumbnail_url = "%s://%s/%s" % (urlbits[0], urlbits[1], filename)
-        
-        return thumbnail_url
+        return self.storage.url(filename)
     
     def save(self, name, content, save=True):
         """
