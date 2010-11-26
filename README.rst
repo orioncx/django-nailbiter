@@ -43,3 +43,17 @@ To display a thumbnail defined in ``extra_thumbnails``, just refer to it
 by the name you defined: ::
 
 	<img src="{{ object.image_file.extra_thumbnails.headline.url }}" />
+
+If you want to make sure that previously uploaded files are removed when you re-upload, handle the pre_save signal for your model.  For example:
+
+        # remove previous photo files and thumbnails!
+        def cleanup_photo(sender, **kwargs):
+            instance = kwargs["instance"]
+            try:
+                up = Photo.objects.get(id=instance.id)
+                if up.photo:
+                    up.photo.delete(False)
+            except:
+                pass
+        
+        pre_save.connect(cleanup_photo, sender=Photo)
