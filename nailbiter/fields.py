@@ -5,6 +5,7 @@ from PIL import Image
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from django.core.files.base import ContentFile
+from django.conf import settings
 
 def generate_thumbnail(img, size, options):
     """
@@ -42,7 +43,12 @@ def generate_thumbnail(img, size, options):
     else:
         format = image.format
     
-    image.save(io, format)
+    quality = getattr(settings, NAILBITER_IMAGE_SAVE_QUALITY, None)
+    if quality:
+        image.save(io, format, quality=quality)
+    else:
+        image.save(io, format)
+
     return ContentFile(io.getvalue())    
 
 
