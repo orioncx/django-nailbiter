@@ -44,7 +44,8 @@ by the name you defined: ::
 
 	<img src="{{ object.image_file.extra_thumbnails.headline.url }}" />
 
-If you want to make sure that previously uploaded files are removed when you re-upload, handle the pre_save signal for your model.  For example:
+If you want to make sure that previously uploaded files are removed when
+you re-upload, handle the pre_save signal for your model.  For example: ::
 
 	# remove previous photo files and thumbnails!
 	def cleanup_photo(sender, **kwargs):
