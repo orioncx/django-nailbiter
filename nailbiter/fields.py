@@ -43,7 +43,7 @@ def generate_thumbnail(img, size, options):
     else:
         format = image.format
     
-    quality = getattr(settings, NAILBITER_IMAGE_SAVE_QUALITY, None)
+    quality = getattr(settings, 'NAILBITER_IMAGE_SAVE_QUALITY', None)
     if quality:
         image.save(io, format, quality=quality)
     else:
