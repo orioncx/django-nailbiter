@@ -7,7 +7,7 @@ from django.db.models.fields.files import ImageFieldFile
 from django.core.files.base import ContentFile
 from django.conf import settings
 
-def generate_thumbnail(img, size, options):
+def generate_thumbnail(img, size, options, quality=None):
     """
     Generates a thumbnail image and returns a ContentFile object with the thumbnail
     
@@ -43,7 +43,6 @@ def generate_thumbnail(img, size, options):
     else:
         format = image.format
     
-    quality = getattr(settings, 'NAILBITER_IMAGE_SAVE_QUALITY', None)
     if quality:
         image.save(io, format, quality=quality)
     else:
@@ -72,13 +71,15 @@ class ImageWithThumbsFieldFile(ImageFieldFile):
     def __init__(self, *args, **kwargs):
         super(ImageWithThumbsFieldFile, self).__init__(*args, **kwargs)
         self.thumbnails_to_generate = []
-        
+
         # queue `thumbnail` option
         if self.field.thumbnail:
+            quality = self.field.thumbnail.get('quality')
             self.thumbnails_to_generate.append({
                 'name': "thumbnail", 
                 'options': self.field.thumbnail.get('options', []),
-                'size': self.field.thumbnail['size']})
+                'size': self.field.thumbnail['size'],
+                'quality':quality or self.field.quality})
             
             if self:
                 setattr(self, "thumbnail", NailbiterThumbnail(
@@ -92,10 +93,12 @@ class ImageWithThumbsFieldFile(ImageFieldFile):
             setattr(self, "extra_thumbnails", {})
             
             for name, details in self.field.extra_thumbnails.iteritems():                
+                quality = details.get('quality')
                 self.thumbnails_to_generate.append({
                     'name': name,
                     'options': details.get('options', []),
-                    'size': details['size']})
+                    'size': details['size'],
+                    'quality':quality or self.field.quality})
                 if self:
                     self.extra_thumbnails[name] = NailbiterThumbnail(
                         name,
@@ -141,7 +144,8 @@ class ImageWithThumbsFieldFile(ImageFieldFile):
             thumbnail_data = generate_thumbnail(
                 content, 
                 thumbnail['size'], 
-                thumbnail['options'])
+                thumbnail['options'],
+                thumbnail['quality'])
             
             # store thumbnail data
             stored_filename = self.storage.save(filename, thumbnail_data)
@@ -164,7 +168,7 @@ class ImageWithThumbsField(ImageField):
 
     def __init__(self, verbose_name=None, name=None, 
         width_field=None, height_field=None, 
-        generate_on_save=True, thumbnail={}, extra_thumbnails=[], filters=[], 
+        generate_on_save=True, thumbnail={}, extra_thumbnails=[], filters=[], quality=None,
         **kwargs):
         
         self.verbose_name=verbose_name
@@ -178,6 +182,8 @@ class ImageWithThumbsField(ImageField):
         self.thumbnail = thumbnail
         self.extra_thumbnails = extra_thumbnails
         self.filters = filters
+
+        self.quality = quality
         
         super(ImageField, self).__init__(**kwargs)
 
