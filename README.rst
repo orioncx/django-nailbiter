@@ -46,14 +46,14 @@ by the name you defined: ::
 
 If you want to make sure that previously uploaded files are removed when you re-upload, handle the pre_save signal for your model.  For example:
 
-        # remove previous photo files and thumbnails!
-        def cleanup_photo(sender, **kwargs):
-            instance = kwargs["instance"]
-            try:
-                up = Photo.objects.get(id=instance.id)
-                if up.photo:
-                    up.photo.delete(False)
-            except:
-                pass
-        
-        pre_save.connect(cleanup_photo, sender=Photo)
+	# remove previous photo files and thumbnails!
+	def cleanup_photo(sender, **kwargs):
+	    instance = kwargs["instance"]
+	    try:
+	        original = Photo.image_file.get(id=instance.id)
+	        if original.photo:
+	            original.image_file.delete(False)
+	    except:
+	        pass
+	
+	pre_save.connect(cleanup_photo, sender=Photo)
