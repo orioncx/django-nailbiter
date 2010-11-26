@@ -42,4 +42,4 @@ To display the thumbnail in a template: ::
 To display a thumbnail defined in ``extra_thumbnails``, just refer to it
 by the name you defined: ::
 
-	<img src="{{ object.image_file.headline.url }}" />
+	<img src="{{ object.image_file.extra_thumbnails.headline.url }}" />
