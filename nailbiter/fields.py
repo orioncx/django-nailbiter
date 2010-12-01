@@ -185,7 +185,7 @@ class ImageWithThumbsField(ImageField):
 
         self.quality = quality
         
-        super(ImageField, self).__init__(**kwargs)
+        super(ImageWithThumbsField, self).__init__(**kwargs)
 
     def south_field_triple(self):
         """
