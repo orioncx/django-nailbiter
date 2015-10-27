@@ -5,6 +5,24 @@ Taken from sorl-thumbnail
 from PIL import Image, ImageFilter, ImageChops
 
 
+def _i_rotate(im):
+    try:
+        exif = im._getexif()
+        orientation_key = 274
+        orientation = exif[orientation_key]
+        if orientation_key in exif:
+            rotate_values = {
+                3: 180,
+                6: 270,
+                8: 90
+            }
+            if orientation in rotate_values:
+                im = im.rotate(rotate_values[orientation])
+    except:
+        pass
+    return im
+
+
 def dynamic_import(names):
     imported = []
     for name in names:
@@ -33,6 +51,8 @@ def colorspace(im, requested_size, opts):
     elif im.mode not in ("L", "RGB", "RGBA"):
         im = im.convert("RGB")
     return im
+
+
 colorspace.valid_options = ('bw',)
 
 
@@ -47,36 +67,44 @@ def autocrop(im, requested_size, opts):
         if bbox:
             im = im.crop(bbox)
     return im
+
+
 autocrop.valid_options = ('autocrop',)
 
 
 def scale_and_crop(im, requested_size, opts):
-    x, y   = [float(v) for v in im.size]
+    im = _i_rotate(im)
+    x, y = [float(v) for v in im.size]
     xr, yr = [float(v) for v in requested_size]
 
     if 'crop' in opts or 'max' in opts:
-        r = max(xr/x, yr/y)
+        r = max(xr / x, yr / y)
     else:
-        r = min(xr/x, yr/y)
+        r = min(xr / x, yr / y)
 
     if r < 1.0 or (r > 1.0 and 'upscale' in opts):
-        im = im.resize((int(x*r), int(y*r)), resample=Image.ANTIALIAS)
+        im = im.resize((int(x * r), int(y * r)), resample=Image.ANTIALIAS)
 
     if 'crop' in opts:
-        x, y   = [float(v) for v in im.size]
-        ex, ey = (x-min(x, xr))/2, (y-min(y, yr))/2
+        x, y = [float(v) for v in im.size]
+        ex, ey = (x - min(x, xr)) / 2, (y - min(y, yr)) / 2
         if ex or ey:
-            im = im.crop((int(ex), int(ey), int(x-ex), int(y-ey)))
+            im = im.crop((int(ex), int(ey), int(x - ex), int(y - ey)))
     return im
+
+
 scale_and_crop.valid_options = ('crop', 'upscale', 'max')
+
 
 def detail(im, requested_size, opts):
     im = im.filter(ImageFilter.DETAIL)
     return im
-    
+
+
 def sharpen(im, requested_size, opts):
     im = im.filter(ImageFilter.SHARPEN)
     return im
+
 
 def filters(im, requested_size, opts):
     if 'detail' in opts:
@@ -84,9 +112,13 @@ def filters(im, requested_size, opts):
     if 'sharpen' in opts:
         im = im.filter(ImageFilter.SHARPEN)
     return im
+
+
 filters.valid_options = ('detail', 'sharpen')
 
+
 def letterbox(im, requested_size, opts):
+    im = _i_rotate(im)
     if 'letterbox' in opts:
         sw, sh = im.size
         dw, dh = requested_size
@@ -111,4 +143,6 @@ def letterbox(im, requested_size, opts):
             bg.paste(im, ((dw - sw) / 2, (dh - sh) / 2))
             im = bg
     return im
+
+
 letterbox.valid_options = ('letterbox',)
