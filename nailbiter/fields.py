@@ -125,7 +125,7 @@ class ImageWithThumbsFieldFile(ImageFieldFile):
         
     def _generate_thumbnail_url(self, thumb_name, size):
         filename = self.generate_thumbnail_name(self.name, thumb_name, size)
-        return self.storage.url(filename)
+        return filename
     
     def save(self, name, content, save=True):
         """
