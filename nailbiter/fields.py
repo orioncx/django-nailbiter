@@ -186,7 +186,7 @@ class ImageWithThumbsField(ImageField):
 
     def __init__(self, verbose_name=None, name=None, 
         width_field=None, height_field=None, 
-        generate_on_save=True, thumbnail={}, extra_thumbnails=[], filters=[], quality=None,
+        generate_on_save=True, thumbnail={}, extra_thumbnails=[], filters=[], quality=100,
         **kwargs):
         
         self.verbose_name=verbose_name
