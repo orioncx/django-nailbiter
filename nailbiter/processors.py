@@ -5,22 +5,7 @@ Taken from sorl-thumbnail
 from PIL import Image, ImageFilter, ImageChops
 
 
-def _i_rotate(im):
-    try:
-        exif = im._getexif()
-        orientation_key = 274
-        orientation = exif[orientation_key]
-        if orientation_key in exif:
-            rotate_values = {
-                3: 180,
-                6: 270,
-                8: 90
-            }
-            if orientation in rotate_values:
-                im = im.rotate(rotate_values[orientation])
-    except:
-        pass
-    return im
+
 
 
 def dynamic_import(names):
@@ -73,7 +58,6 @@ autocrop.valid_options = ('autocrop',)
 
 
 def scale_and_crop(im, requested_size, opts):
-    im = _i_rotate(im)
     x, y = [float(v) for v in im.size]
     xr, yr = [float(v) for v in requested_size]
 
@@ -118,7 +102,6 @@ filters.valid_options = ('detail', 'sharpen')
 
 
 def letterbox(im, requested_size, opts):
-    im = _i_rotate(im)
     if 'letterbox' in opts:
         sw, sh = im.size
         dw, dh = requested_size

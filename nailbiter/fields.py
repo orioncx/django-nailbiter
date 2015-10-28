@@ -7,6 +7,23 @@ from django.db.models.fields.files import ImageFieldFile
 from django.core.files.base import ContentFile
 from django.conf import settings
 
+def _i_rotate(im):
+    try:
+        exif = im._getexif()
+        orientation_key = 274
+        orientation = exif[orientation_key]
+        if orientation_key in exif:
+            rotate_values = {
+                3: 180,
+                6: 270,
+                8: 90
+            }
+            if orientation in rotate_values:
+                im = im.rotate(rotate_values[orientation], expand=True)
+    except:
+        pass
+    return im
+
 def generate_thumbnail(img, size, options, quality=None):
     """
     Generates a thumbnail image and returns a ContentFile object with the thumbnail
@@ -22,7 +39,8 @@ def generate_thumbnail(img, size, options, quality=None):
     
     img.seek(0) # seek to beginning of image data
     image = Image.open(img)
-    
+    image = _i_rotate(image)
+
     # convert to rgb if necessary
     if image.mode not in ('L', 'RGB'):
         image = image.convert('RGB')
